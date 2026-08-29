@@ -1,3 +1,3 @@
-FROM alpine:latest
+FROM nginx:alpine
 
-CMD ["echo", "Hello from Docker image that build with pooling"]
+RUN echo "Hello from jenkins deployment!" > /usr/share/nginx/html/index.html

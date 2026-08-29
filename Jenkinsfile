@@ -33,4 +33,13 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            sh '''
+                echo "Cleaning unused Docker images..."
+                docker image prune -f
+            '''
+        }
+    }
 }
