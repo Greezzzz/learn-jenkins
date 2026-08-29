@@ -25,21 +25,20 @@ pipeline {
             }
         }
 
-        stage('Check Deployment'){
+        stage('Health Check'){
             steps {
                 sh '''
-                    docker compose ps
+                    echo "Waiting for application..."
+
+                    sleep 3
+
+                    curl --fail \
+                        http://localhost:8081
+
+                    echo ""
+                    echo "Application is healty!"
                 '''
             }
-        }
-    }
-
-    post {
-        success {
-            sh '''
-                echo "Cleaning unused Docker images..."
-                docker image prune -f
-            '''
         }
     }
 }
