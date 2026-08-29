@@ -7,10 +7,12 @@ pipeline {
     }
 
     stages {
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
                 sh '''
-                    docker compose build
+                    docker build \
+                        -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                        .
                 '''
             }
         }
@@ -18,7 +20,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    docker compose up -d
+                    IMAGE_TAG=${IMAGE_TAG} docker compose up -d
                 '''
             }
         }
