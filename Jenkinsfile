@@ -12,7 +12,7 @@ pipeline {
             steps {
                 sh '''
                     echo "==== GIT ==="
-                    git --version--
+                    git --version
 
                     echo "=== Docker ==="
                     docker --version
