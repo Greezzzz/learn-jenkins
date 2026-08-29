@@ -3,3 +3,6 @@ services:
     image: jenkins-demo:${IMAGE_TAG:-latest}
     container_name: jenkins-demo
     restart: unless-stopped
+
+    ports:
+      - "8081:80"
