@@ -5,7 +5,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                    docker build -t learn-jenkins:latest .
+                    docker build -t learn-jenkins:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -13,7 +13,7 @@ pipeline {
         stage('Run Docker Image') {
             steps {
                 sh '''
-                    docker run --rm learn-jenkins:latest
+                    docker run --rm learn-jenkins:${BUILD_NUMBER}
                 '''
             }
         }
