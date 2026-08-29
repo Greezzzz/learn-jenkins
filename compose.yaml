@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: -
+      context: .
     image: jenkins-demo:${IMAGE_TAG:-latest}
     container_name: jenkins-demo
     restart: unless-stopped
