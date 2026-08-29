@@ -1,3 +1,3 @@
 FROM alpine:latest
 
-CMD ["echo", "Hello from Docker image!"]
+CMD ["echo", "Hello from Docker image that build with pooling"]
