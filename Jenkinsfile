@@ -10,15 +10,23 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    docker compose build
                 '''
             }
         }
 
-        stage('Run Docker Image') {
+        stage('Deploy') {
             steps {
                 sh '''
-                    docker run --rm ${IMAGE_NAME}:${IMAGE_TAG}
+                    docker compose up -d
+                '''
+            }
+        }
+
+        stage('Check Deployment'){
+            steps {
+                sh '''
+                    docker compose ps
                 '''
             }
         }

@@ -1,3 +1,3 @@
 FROM alpine:latest
 
-CMD ["echo", "Hello from Docker image!"]
+CMD ["sh", "-c", "echo 'Hello from Compose deployment!' && sleep 3600"]
