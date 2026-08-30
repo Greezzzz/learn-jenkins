@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'jenkins-demo'
         IMAGE_TAG = "${BUILD_NUMBER}"
-        STATE_FILE = 'deployment-state.env'
+        DEPLOY_DIR = '/opt/jenkins-demo'
     }
 
     stages {
@@ -18,33 +18,21 @@ pipeline {
             }
         }
 
-        stage('Get Current Version') {
-            steps {
-                script {
-                    if (fileExists(env.STATE_FILE)) {
-                        def state = readFile(env.STATE_FILE).trim()
-
-                        if (state) {
-                            env.PREVIOUS_VERSION = 
-                                state.replace('CURRENT_VERSION=', '').trim()
-                        }
-                    }
-
-                    if (!env.PREVIOUS_VERSION) {
-                        env.PREVIOUS_VERSION = ''
-                    }
-
-                    echo "Previous version: ${env.PREVIOUS_VERSION}"
-                    echo "New version: ${env.IMAGE_TAG}"
-                }
-            }
-        }
-
 
         stage('Deploy') {
             steps {
                 sh '''
-                    IMAGE_TAG=${IMAGE_TAG} docker compose up -d
+                    mkdir -p %{DEPLOY_DIR}
+
+                    cp compose.yaml ${DEPLOY_DIR}/compose.yaml
+
+                    cat > ${DEPLOY_DIR}.env <<EOF
+                    IMAGE_TAG=${IMAGE_TAG}
+                    EOF
+
+                    cd ${DEPLOY_DIR}
+
+                    docker compose up -d
                 '''
             }
         }
@@ -65,31 +53,18 @@ pipeline {
             }
         }
 
-        stage('Update Deployment State') {
+        stage('Commit Deployment State') {
             steps {
                 sh '''
-                    echo "CURRENT_VERSION=${IMAGE_TAG}" > %{STATE_FILE}
+                    GIT_COMMIT=${git rev-parse HEAD}
 
-                    echo "Deployment state updated:"
-                    cat ${STATE_FILE}
+                    cat > ${DEPLOY_DIR}/deployment.env <<EOF
+                    IMAGE_TAG=${IMAGE_TAG}
+                    GIT_COMMIT=${GIT_COMMIT}
+
+                    echo "Deployment committed."
+                    cat ${DEPLOY_DIR}/deployment.env
                 '''
-            }
-        }
-    }
-
-    post {
-        failure {
-            script {
-                if (env.PREVIOUS_VERSION) {
-                    echo "Deployment failed !"
-                    echo "Rolling back to ${env.PREVIOUS_VERSION}"
-
-                    sh """
-                        IMAGE_TAG = ${PREVIOUS_VERSION} docker compose up -d
-                    """
-                } else {
-                    echo "No previous version available. Skipping rollback."
-                }
             }
         }
     }
