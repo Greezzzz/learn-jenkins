@@ -26,7 +26,7 @@ pipeline {
 
                     cp compose.yaml ${DEPLOY_DIR}/compose.yaml
 
-                    cat > ${DEPLOY_DIR}/deployment.env <<EOF 
+                    cat > ${DEPLOY_DIR}/deployment.env <<EOF
 IMAGE_TAG=${IMAGE_TAG}
 EOF
 
@@ -56,11 +56,11 @@ EOF
         stage('Commit Deployment State') {
             steps {
                 sh '''
-                    GIT_COMMIT=${git rev-parse HEAD}
+                    GIT_COMMIT=$(git rev-parse HEAD)
 
                     cat > ${DEPLOY_DIR}/deployment.env <<EOF
-IMAGE_TAG=${IMAGE_TAG} 
-GIT_COMMIT=${GIT_COMMIT} 
+IMAGE_TAG=${IMAGE_TAG}
+GIT_COMMIT=${GIT_COMMIT}
 EOF
 
                     echo "Deployment committed."
