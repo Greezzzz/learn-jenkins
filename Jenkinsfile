@@ -26,7 +26,7 @@ pipeline {
 
                     cp compose.yaml ${DEPLOY_DIR}/compose.yaml
 
-                    cat > ${DEPLOY_DIR}.env <<EOF
+                    cat > ${DEPLOY_DIR}/deployment.env <<EOF
                     IMAGE_TAG=${IMAGE_TAG}
                     EOF
 
