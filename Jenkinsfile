@@ -1,72 +1,38 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = 'jenkins-demo'
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        DEPLOY_DIR = '/opt/jenkins-demo'
-    }
-
     stages {
-        stage('Build') {
+
+        stage('Checkout') {
             steps {
-                sh '''
-                    docker build \
-                        -t ${IMAGE_NAME}:${IMAGE_TAG} \
-                        .
-                '''
+                checkout scm
             }
         }
 
+        stage('Test') {
+            steps {
+                sh '''
+                    python -m pytest
+                '''
+            }
+        }
 
         stage('Deploy') {
             steps {
-                sh '''
-                    mkdir -p ${DEPLOY_DIR}
+                sshagent(['vps-ssh']) {
+                    sh '''
+                        rsync -avz --delete \
+                            --exclude='.git' \
+                            ./ ubuntu@43.129.33.101:/opt/health-api/
 
-                    cp compose.yaml ${DEPLOY_DIR}/compose.yaml
-
-                    cat > ${DEPLOY_DIR}/deployment.env <<EOF
-IMAGE_TAG=${IMAGE_TAG}
-EOF
-
-                    cd ${DEPLOY_DIR}
-
-                    docker compose up -d
-                '''
+                        ssh ubuntu@43.129.33.101 "
+                            cd /opt/health-api &&
+                            docker compose up -d --build
+                        "
+                    '''
+                }
             }
         }
 
-        stage('Health Check'){
-            steps {
-                sh '''
-                    echo "Waiting for application..."
-
-                    sleep 3
-
-                    curl --fail \
-                        http://localhost:8081
-
-                    echo ""
-                    echo "Application is healty!"
-                '''
-            }
-        }
-
-        stage('Commit Deployment State') {
-            steps {
-                sh '''
-                    GIT_COMMIT=$(git rev-parse HEAD)
-
-                    cat > ${DEPLOY_DIR}/deployment.env <<EOF
-IMAGE_TAG=${IMAGE_TAG}
-GIT_COMMIT=${GIT_COMMIT}
-EOF
-
-                    echo "Deployment committed."
-                    cat ${DEPLOY_DIR}/deployment.env
-                '''
-            }
-        }
     }
 }
