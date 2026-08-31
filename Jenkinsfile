@@ -1,23 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/var/lib/jenkins/.local/bin:${env.PATH}"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 checkout scm
-            }
-        }
-
-        stage('Debug Environment') {
-            steps {
-                sh '''
-                    whoami
-                    echo "HOME=$HOME"
-                    echo "PATH=$PATH"
-                    command -v uv || true
-                    ls -la "$HOME/.local/bin" || true
-                '''
             }
         }
 
