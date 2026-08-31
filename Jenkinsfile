@@ -9,6 +9,18 @@ pipeline {
             }
         }
 
+        stage('Debug Environment') {
+            steps {
+                sh '''
+                    whoami
+                    echo "HOME=$HOME"
+                    echo "PATH=$PATH"
+                    command -v uv || true
+                    ls -la "$HOME/.local/bin" || true
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh '''
