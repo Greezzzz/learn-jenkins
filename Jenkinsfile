@@ -9,28 +9,19 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
-                    python -m pytest
+                    uv sync --frozen
                 '''
             }
         }
 
-        stage('Deploy') {
+        stage('Test') {
             steps {
-                sshagent(['vps-ssh']) {
-                    sh '''
-                        rsync -avz --delete \
-                            --exclude='.git' \
-                            ./ ubuntu@43.129.33.101:/opt/health-api/
-
-                        ssh ubuntu@43.129.33.101 "
-                            cd /opt/health-api &&
-                            docker compose up -d --build
-                        "
-                    '''
-                }
+                sh '''
+                    uv run pytest
+                '''
             }
         }
 
