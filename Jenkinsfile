@@ -23,7 +23,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sshagent(['vps-ssh']) {
+                sshagent(['grz-1-ssh']) {
                     sh '''
                         rsync -avz --delete \
                             --exclude='.git' \
