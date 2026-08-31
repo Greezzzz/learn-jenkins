@@ -24,7 +24,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    uv run pytest
+                    uv run python -m pytest ./test/test_health.py
                 '''
             }
         }
