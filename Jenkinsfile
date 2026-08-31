@@ -13,14 +13,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                    uv sync --frozen
-                '''
-            }
-        }
-
         stage('Test') {
             steps {
                 sh '''
@@ -29,5 +21,21 @@ pipeline {
             }
         }
 
+        stage('Deploy') {
+            steps {
+                sshagent(['vps-ssh']) {
+                    sh '''
+                        rsync -avz --delete \
+                            --exclude='.git' \
+                            ./ ubuntu@43.129.33.101:/opt/health-api/
+
+                        ssh ubuntu@43.129.33.101 "
+                            cd /opt/health-api &&
+                            docker compose up -d --build
+                        "
+                    '''
+                }
+            }
+        }
     }
 }
