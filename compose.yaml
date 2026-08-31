@@ -1,8 +1,7 @@
 services:
-  app:
-    image: jenkins-demo:${IMAGE_TAG:-latest}
-    container_name: jenkins-demo
-    restart: unless-stopped
-
+  api:
+    build: .
+    container_name: health-api
     ports:
-      - "8081:80"
+      - "4333:4333"
+    restart: unless-stopped
